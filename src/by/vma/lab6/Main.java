@@ -179,7 +179,7 @@ public class Main {
             b.fillDefault();
             b = A.transpose().mul(b);
             A = A.transpose().mul(A);
-            x = lowerRelaxation();
+            x = upperRelaxation();
             System.out.println("Вектор X(Метод верхней релаксации):");
             x.print(false);
             System.out.println();
@@ -193,11 +193,11 @@ public class Main {
         }
     }
 
-    private static Vector lowerRelaxation() throws Exception {
+    private static Vector upperRelaxation() throws Exception {
         Vector prevX;
         Vector nextX = new Vector(n);
         double sum;
-        double omega = 1.000001;
+        double omega = 1.1;
         for (int i = 0; i < n; i++){
             nextX.vector[i] = b.vector[i] / A.matrix[i][i];
         }
