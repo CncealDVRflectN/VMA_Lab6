@@ -115,7 +115,7 @@ public class Main {
             vector = new double[length];
         }
 
-        public Vector(Vector init) throws Exception{
+        public Vector(Vector init) throws Exception {
             this(init.getLength());
             for (int i = 0; i < length; i++) {
                 this.vector[i] = init.vector[i];
@@ -140,6 +140,25 @@ public class Main {
             double[] b = {1.2677, 1.6819, -2.3657, -6.5369, 2.8351};
             this.length = 5;
             this.vector = b;
+        }
+
+        public double mul(Vector second) throws Exception {
+            if (length != second.getLength()) {
+                throw new Exception("Неверный вектор.");
+            }
+            double result = 0;
+            for (int i = 0; i < length; i++) {
+                result += this.vector[i] * second.vector[i];
+            }
+            return result;
+        }
+
+        public Vector mul(double num) throws Exception {
+            Vector result = new Vector(length);
+            for (int i = 0; i < length; i++) {
+                result.vector[i] = this.vector[i] * num;
+            }
+            return result;
         }
 
         public Vector subtract(Vector sub) throws Exception {
@@ -187,7 +206,17 @@ public class Main {
             System.out.println("Вектор невязки R(Метод верхней релаксации):");
             r.print(true);
             System.out.println();
-            System.out.println("Норма вектора невязки ||R||(Метод верхней релаксации): " + r.normI());
+            System.out.println("Норма вектора невязки ||R||(Метод верхней релаксации) = " + r.normI());
+            System.out.println();
+            x = minimalResidualMethod();
+            System.out.println("Вектор X(Метод минимальных невязок):");
+            x.print(false);
+            System.out.println();
+            r = A.mul(x).subtract(b);
+            System.out.println("Вектор невязки R(Метод минимальных невязок):");
+            r.print(true);
+            System.out.println();
+            System.out.println("Норма вектора невязки ||R||(Метод минимальных невязок) = " + r.normI());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,7 +227,7 @@ public class Main {
         Vector nextX = new Vector(n);
         double sum;
         double omega = 1.1;
-        for (int i = 0; i < n; i++){
+        for (int i = 0; i < n; i++) {
             nextX.vector[i] = b.vector[i] / A.matrix[i][i];
         }
         do {
@@ -206,18 +235,37 @@ public class Main {
             for (int i = 0; i < n; i++) {
                 sum = 0;
                 nextX.vector[i] = (1 - omega) * prevX.vector[i];
-                for(int j = 0; j < i; j++) {
+                for (int j = 0; j < i; j++) {
                     sum += (A.matrix[i][j] / A.matrix[i][i]) * nextX.vector[j];
                 }
                 nextX.vector[i] -= omega * sum;
                 sum = 0;
-                for(int j = i + 1; j < n; j++) {
+                for (int j = i + 1; j < n; j++) {
                     sum += (A.matrix[i][j] / A.matrix[i][i]) * prevX.vector[j];
                 }
                 nextX.vector[i] -= omega * sum;
                 nextX.vector[i] += omega * (b.vector[i] / A.matrix[i][i]);
             }
         } while (nextX.subtract(prevX).normI() > omega * epsilon);
+        return nextX;
+    }
+
+    private static Vector minimalResidualMethod() throws Exception {
+        Vector prevX;
+        Vector nextX = new Vector(n);
+        Vector Ar;
+        Vector rk;
+        double coef;
+        for (int i = 0; i < n; i++) {
+            nextX.vector[i] = b.vector[i] / A.matrix[i][i];
+        }
+        do {
+            prevX = new Vector(nextX);
+            rk = A.mul(prevX).subtract(b);
+            Ar = A.mul(rk);
+            coef = Ar.mul(rk) / Ar.mul(Ar);
+            nextX = prevX.subtract(rk.mul(coef));
+        } while (A.mul(nextX).subtract(b).normI() > epsilon);
         return nextX;
     }
 }
