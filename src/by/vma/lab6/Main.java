@@ -227,6 +227,7 @@ public class Main {
         Vector nextX = new Vector(n);
         double sum;
         double omega = 1.1;
+        int counter = 0;
         for (int i = 0; i < n; i++) {
             nextX.vector[i] = b.vector[i] / A.matrix[i][i];
         }
@@ -246,7 +247,10 @@ public class Main {
                 nextX.vector[i] -= omega * sum;
                 nextX.vector[i] += omega * (b.vector[i] / A.matrix[i][i]);
             }
+            counter++;
         } while (nextX.subtract(prevX).normI() > omega * epsilon);
+        System.out.println("Количество итераций метода верхней релаксации: " + counter);
+        System.out.println();
         return nextX;
     }
 
@@ -256,6 +260,7 @@ public class Main {
         Vector Ar;
         Vector rk;
         double coef;
+        int counter = 0;
         for (int i = 0; i < n; i++) {
             nextX.vector[i] = b.vector[i] / A.matrix[i][i];
         }
@@ -265,7 +270,10 @@ public class Main {
             Ar = A.mul(rk);
             coef = Ar.mul(rk) / Ar.mul(Ar);
             nextX = prevX.subtract(rk.mul(coef));
+            counter++;
         } while (A.mul(nextX).subtract(b).normI() > epsilon);
+        System.out.println("Количество итераций метода минимальных невязок: " + counter);
+        System.out.println();
         return nextX;
     }
 }
